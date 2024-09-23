@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 		window.swapBuffers();
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;
-		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - (t1 - t0));
+		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
 	}
 
 	return 0;
