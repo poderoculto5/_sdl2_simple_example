@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <SDL2/SDL_events.h>
 #include "MyWindow.h"
+#include "json/json.h"
+#include "fstream"
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -32,9 +34,9 @@ static void draw_triangle(const u8vec4& color, const vec3& center, double size) 
 	glEnd();
 }
 
-static void display_func() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
+static void display_func(Json::Value triangle) {
+	draw_triangle(u8vec4(triangle["color"][0].asInt(), triangle["color"][1].asInt(), triangle["color"][2].asInt(), triangle["color"][3].asInt()),
+		vec3(triangle["center"][0].asFloat(), triangle["center"][1].asFloat(), triangle["center"][2].asFloat()), triangle["size"].asFloat());
 }
 
 static bool processEvents() {
@@ -53,9 +55,21 @@ int main(int argc, char** argv) {
 
 	init_openGL();
 
+	Json::Value config;
+	ifstream doc("config.json", ifstream::binary);
+	Json::CharReaderBuilder readerBuilder;
+	string errs;
+	Json::parseFromStream(readerBuilder, doc, &config, &errs);
+
+	// Probant el color
+	// printf("%d", config["trian"]["color"][1].asInt());
+
 	while (processEvents()) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		const auto t0 = hrclock::now();
-		display_func();
+		display_func(config["trian"]);
+		display_func(config["trian2"]);
+		display_func(config["trian3"]);
 		window.swapBuffers();
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;
